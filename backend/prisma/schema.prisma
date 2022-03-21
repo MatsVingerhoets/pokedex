@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SuperType {
+  ENERGY   @map("energy")
+  TRAINER  @map("trainer")
+  POKEMON  @map("pokemon")
+
+  @@map("super_type_enum")
+}
+
+model PokemonSetList {
+  id        String   @id @default(uuid())
+  setId     String   @unique @map("set_id")
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  @@map("pokemon_set_list")
+}
+
+model PokemonCard {
+  id        String    @id
+  name      String
+  superType SuperType @map("super_type")
+  subTypes  String[]  @map("sub_types")
+  hp        String
+  types     String[]
+  evolvesTo String[]  @map("evolves_to")
+  rules     String[]
+  set       Set       @relation(fields: [setId], references: [id])
+  number    String
+  rarity    String
+  images    Json
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @map("updated_at")
+
+  setId String
+  @@map("pokemon_cards")
+}
+
+model Set {
+  id           String        @id
+  name         String
+  series       String
+  printedTotal Int
+  total        Int
+  images       Json
+  PokemonCard  PokemonCard[]
+
+  @@map("set")
+}
